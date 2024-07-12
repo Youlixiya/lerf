@@ -47,6 +47,7 @@ class OpenCLIPNetwork(BaseImageEncoder):
         self.clip_n_dims = self.config.clip_n_dims
 
         self.positive_input = ViewerText("LERF Positives", "", cb_hook=self.gui_cb)
+        self.positive_input.value = 'tea in a glass'
 
         self.positives = self.positive_input.value.split(";")
         self.negatives = self.config.negatives
