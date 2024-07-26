@@ -199,6 +199,7 @@ class LERFModel(NerfactoModel):
             outputs[f"composited_{i}"][mask, :] = outputs["rgb"][mask, :]
             outputs[f"mask_map_{i}"] = outputs["rgb"].clone()
             outputs[f"mask_map_{i}"][~mask, :] = outputs[f"mask_map_{i}"][~mask, :] * 0.5 + torch.tensor([1, 0, 0], device='cuda').reshape(1, 3) * 0.5
+            outputs[f"mask_map_{i}"][mask, :] /= 2                                            
         return outputs
 
     def _get_outputs_nerfacto(self, ray_samples: RaySamples):

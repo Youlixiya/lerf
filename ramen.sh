@@ -1,0 +1,10 @@
+ns-render dataset --load-config outputs/ramen/lerf/2024-07-17_164600/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt chopsticks --output-path lerf_masks/ramen/chopsticks
+ns-render dataset --load-config outputs/ramen/lerf/2024-07-17_164600/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt egg --output-path lerf_masks/ramen/egg
+ns-render dataset --load-config outputs/ramen/lerf/2024-07-17_164600/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "glass of water" --output-path "lerf_masks/ramen/glass of water"
+ns-render dataset --load-config outputs/ramen/lerf/2024-07-17_164600/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "pork belly" --output-path "lerf_masks/ramen/pork belly"
+ns-render dataset --load-config outputs/ramen/lerf/2024-07-17_164600/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "wavy noodles in bowl" --output-path "lerf_masks/ramen/wavy noodles in bowl"
+ns-render dataset --load-config outputs/ramen/lerf/2024-07-17_164600/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "yellow bowl" --output-path "lerf_masks/ramen/yellow bowl"
+# ns-viewer --load-config outputs/ramen/lerf/2024-07-15_152405/config.yml
+
+# CUDA_VISIBLE_DEVICES=1 ns-train lerf --data data/lerf_data/figurines
+# CUDA_VISIBLE_DEVICES=2 ns-train lerf --data data/lerf_data/teatime

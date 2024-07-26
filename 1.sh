@@ -1,2 +1,0 @@
-ns-render camera-path --load-config outputs/teatime/lerf/2024-07-12_132740/config.yml --camera-path-filename cameras/teatime_eval_camera_path.json --output-format images --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True
-ns-viewer --load-config outputs/teatime/lerf/2024-07-12_132740/config.yml

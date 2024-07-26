@@ -20,8 +20,8 @@
     }
   ],
   "camera_type": "perspective",
-  "render_height": 738,
-  "render_width": 994,
+  "render_height": 730,
+  "render_width": 988,
   "camera_path": [
     {
       "camera_to_world": [

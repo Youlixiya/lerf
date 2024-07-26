@@ -21,6 +21,7 @@ class OpenCLIPNetworkConfig(BaseImageEncoderConfig):
     clip_model_pretrained: str = "laion2b_s34b_b88k"
     clip_n_dims: int = 512
     negatives: Tuple[str] = ("object", "things", "stuff", "texture")
+    text_prompt: str = ''
 
 
 class OpenCLIPNetwork(BaseImageEncoder):
@@ -47,7 +48,7 @@ class OpenCLIPNetwork(BaseImageEncoder):
         self.clip_n_dims = self.config.clip_n_dims
 
         self.positive_input = ViewerText("LERF Positives", "", cb_hook=self.gui_cb)
-        self.positive_input.value = 'tea in a glass'
+        self.positive_input.value = self.config.text_prompt
 
         self.positives = self.positive_input.value.split(";")
         self.negatives = self.config.negatives
