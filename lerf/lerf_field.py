@@ -52,7 +52,7 @@ class LERFField(Field):
         tot_out_dims = sum([e.n_output_dims for e in self.clip_encs])
 
         self.clip_net = tcnn.Network(
-            n_input_dims=tot_out_dims + 1,
+            n_input_dims=tot_out_dims,
             n_output_dims=clip_n_dims,
             network_config={
                 "otype": "CutlassMLP",
@@ -63,17 +63,17 @@ class LERFField(Field):
             },
         )
 
-        self.dino_net = tcnn.Network(
-            n_input_dims=tot_out_dims,
-            n_output_dims=384,
-            network_config={
-                "otype": "CutlassMLP",
-                "activation": "ReLU",
-                "output_activation": "None",
-                "n_neurons": 256,
-                "n_hidden_layers": 1,
-            },
-        )
+        # self.dino_net = tcnn.Network(
+        #     n_input_dims=tot_out_dims,
+        #     n_output_dims=384,
+        #     network_config={
+        #         "otype": "CutlassMLP",
+        #         "activation": "ReLU",
+        #         "output_activation": "None",
+        #         "n_neurons": 256,
+        #         "n_hidden_layers": 1,
+        #     },
+        # )
 
     @staticmethod
     def _get_encoding(start_res, end_res, levels, indim=3, hash_size=19):
@@ -91,7 +91,7 @@ class LERFField(Field):
         )
         return enc
 
-    def get_outputs(self, ray_samples: RaySamples, clip_scales) -> Dict[LERFFieldHeadNames, Float[Tensor, "bs dim"]]:
+    def get_outputs(self, ray_samples: RaySamples) -> Dict[LERFFieldHeadNames, Float[Tensor, "bs dim"]]:
         # random scales, one scale
         outputs = {}
 
@@ -104,18 +104,18 @@ class LERFField(Field):
 
         outputs[LERFFieldHeadNames.HASHGRID] = x.view(*ray_samples.frustums.shape, -1)
 
-        clip_pass = self.clip_net(torch.cat([x, clip_scales.view(-1, 1)], dim=-1)).view(*ray_samples.frustums.shape, -1)
+        clip_pass = self.clip_net(x).view(*ray_samples.frustums.shape, -1)
         outputs[LERFFieldHeadNames.CLIP] = clip_pass / clip_pass.norm(dim=-1, keepdim=True)
 
-        dino_pass = self.dino_net(x).view(*ray_samples.frustums.shape, -1)
-        outputs[LERFFieldHeadNames.DINO] = dino_pass
+        # dino_pass = self.dino_net(x).view(*ray_samples.frustums.shape, -1)
+        # outputs[LERFFieldHeadNames.DINO] = dino_pass
 
         return outputs
 
-    def get_output_from_hashgrid(self, ray_samples: RaySamples, hashgrid_field, scale):
+    def get_output_from_hashgrid(self, ray_samples: RaySamples, hashgrid_field):
         # designated scales, run outputs for each scale
         hashgrid_field = hashgrid_field.view(-1, self.clip_net.n_input_dims - 1)
-        clip_pass = self.clip_net(torch.cat([hashgrid_field, scale.view(-1, 1)], dim=-1)).view(
+        clip_pass = self.clip_net(hashgrid_field).view(
             *ray_samples.frustums.shape, -1
         )
         output = clip_pass / clip_pass.norm(dim=-1, keepdim=True)

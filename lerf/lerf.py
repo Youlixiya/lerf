@@ -98,20 +98,20 @@ class LERFModel(NerfactoModel):
         dataclass_fn = lambda dc: dc._apply_fn_to_fields(gather_fn, dataclass_fn)
         lerf_samples: RaySamples = ray_samples._apply_fn_to_fields(gather_fn, dataclass_fn)
 
-        if self.training:
-            with torch.no_grad():
-                clip_scales = ray_bundle.metadata["clip_scales"]
-                clip_scales = clip_scales[..., None]
-                dist = (lerf_samples.frustums.get_positions() - ray_bundle.origins[:, None, :]).norm(
-                    dim=-1, keepdim=True
-                )
-            clip_scales = clip_scales * ray_bundle.metadata["height"] * (dist / ray_bundle.metadata["fy"])
-        else:
-            clip_scales = torch.ones_like(lerf_samples.spacing_starts, device=self.device)
+        # if self.training:
+        #     with torch.no_grad():
+        #         clip_scales = ray_bundle.metadata["clip_scales"]
+        #         clip_scales = clip_scales[..., None]
+        #         dist = (lerf_samples.frustums.get_positions() - ray_bundle.origins[:, None, :]).norm(
+        #             dim=-1, keepdim=True
+        #         )
+        #     clip_scales = clip_scales * ray_bundle.metadata["height"] * (dist / ray_bundle.metadata["fy"])
+        # else:
+        #     clip_scales = torch.ones_like(lerf_samples.spacing_starts, device=self.device)
 
-        override_scales = (
-            None if "override_scales" not in ray_bundle.metadata else ray_bundle.metadata["override_scales"]
-        )
+        # override_scales = (
+        #     None if "override_scales" not in ray_bundle.metadata else ray_bundle.metadata["override_scales"]
+        # )
         weights_list.append(weights)
         if self.training:
             outputs["weights_list"] = weights_list
@@ -119,25 +119,25 @@ class LERFModel(NerfactoModel):
         for i in range(self.config.num_proposal_iterations):
             outputs[f"prop_depth_{i}"] = self.renderer_depth(weights=weights_list[i], ray_samples=ray_samples_list[i])
 
-        lerf_field_outputs = self.lerf_field.get_outputs(lerf_samples, clip_scales)
+        lerf_field_outputs = self.lerf_field.get_outputs(lerf_samples)
         outputs["clip"] = self.renderer_clip(
             embeds=lerf_field_outputs[LERFFieldHeadNames.CLIP], weights=lerf_weights.detach()
         )
-        outputs["dino"] = self.renderer_mean(
-            embeds=lerf_field_outputs[LERFFieldHeadNames.DINO], weights=lerf_weights.detach()
-        )
+        # outputs["dino"] = self.renderer_mean(
+        #     embeds=lerf_field_outputs[LERFFieldHeadNames.DINO], weights=lerf_weights.detach()
+        # )
 
-        if not self.training:
-            with torch.no_grad():
-                max_across, best_scales = self.get_max_across(
-                    lerf_samples,
-                    lerf_weights,
-                    lerf_field_outputs[LERFFieldHeadNames.HASHGRID],
-                    clip_scales.shape,
-                    preset_scales=override_scales,
-                )
-                outputs["raw_relevancy"] = max_across  # N x B x 1
-                outputs["best_scales"] = best_scales.to(self.device)  # N
+        # if not self.training:
+        #     with torch.no_grad():
+        #         max_across, best_scales = self.get_max_across(
+        #             lerf_samples,
+        #             lerf_weights,
+        #             lerf_field_outputs[LERFFieldHeadNames.HASHGRID],
+        #             clip_scales.shape,
+        #             preset_scales=override_scales,
+        #         )
+        #         outputs["raw_relevancy"] = max_across  # N x B x 1
+        #         outputs["best_scales"] = best_scales.to(self.device)  # N
 
         return outputs
 
@@ -151,6 +151,7 @@ class LERFModel(NerfactoModel):
             camera_ray_bundle: ray bundle to calculate outputs over
         """
         # TODO(justin) implement max across behavior
+        input_device = camera_ray_bundle.directions.device
         num_rays_per_chunk = self.config.eval_num_rays_per_chunk
         image_height, image_width = camera_ray_bundle.origins.shape[:2]
         num_rays = len(camera_ray_bundle)
@@ -159,33 +160,46 @@ class LERFModel(NerfactoModel):
             start_idx = i
             end_idx = i + num_rays_per_chunk
             ray_bundle = camera_ray_bundle.get_row_major_sliced_ray_bundle(start_idx, end_idx)
+            # move the chunk inputs to the model device
+            ray_bundle = ray_bundle.to(self.device)
             outputs = self.forward(ray_bundle=ray_bundle)
-            # take the best scale for each query across each ray bundle
-            if i == 0:
-                best_scales = outputs["best_scales"]
-                best_relevancies = [m.max() for m in outputs["raw_relevancy"]]
-            else:
-                for phrase_i in range(outputs["best_scales"].shape[0]):
-                    m = outputs["raw_relevancy"][phrase_i, ...].max()
-                    if m > best_relevancies[phrase_i]:
-                        best_scales[phrase_i] = outputs["best_scales"][phrase_i]
-                        best_relevancies[phrase_i] = m
-        # re-render the max_across outputs using the best scales across all batches
-        for i in range(0, num_rays, num_rays_per_chunk):
-            start_idx = i
-            end_idx = i + num_rays_per_chunk
-            ray_bundle = camera_ray_bundle.get_row_major_sliced_ray_bundle(start_idx, end_idx)
-            ray_bundle.metadata["override_scales"] = best_scales
-            outputs = self.forward(ray_bundle=ray_bundle)
-            # standard nerfstudio concatting
             for output_name, output in outputs.items():  # type: ignore
-                if output_name == "best_scales":
+                if not isinstance(output, torch.Tensor):
+                    # TODO: handle lists of tensors as well
                     continue
-                if output_name == "raw_relevancy":
-                    for r_id in range(output.shape[0]):
-                        outputs_lists[f"relevancy_{r_id}"].append(output[r_id, ...])
-                else:
-                    outputs_lists[output_name].append(output)
+                # move the chunk outputs from the model device back to the device of the inputs.
+                outputs_lists[output_name].append(output.to(input_device))
+        # for i in range(0, num_rays, num_rays_per_chunk):
+        #     start_idx = i
+        #     end_idx = i + num_rays_per_chunk
+        #     ray_bundle = camera_ray_bundle.get_row_major_sliced_ray_bundle(start_idx, end_idx)
+        #     outputs = self.forward(ray_bundle=ray_bundle)
+        #     # take the best scale for each query across each ray bundle
+        #     if i == 0:
+        #         best_scales = outputs["best_scales"]
+        #         best_relevancies = [m.max() for m in outputs["raw_relevancy"]]
+        #     else:
+        #         for phrase_i in range(outputs["best_scales"].shape[0]):
+        #             m = outputs["raw_relevancy"][phrase_i, ...].max()
+        #             if m > best_relevancies[phrase_i]:
+        #                 best_scales[phrase_i] = outputs["best_scales"][phrase_i]
+        #                 best_relevancies[phrase_i] = m
+        # re-render the max_across outputs using the best scales across all batches
+        # for i in range(0, num_rays, num_rays_per_chunk):
+        #     start_idx = i
+        #     end_idx = i + num_rays_per_chunk
+        #     ray_bundle = camera_ray_bundle.get_row_major_sliced_ray_bundle(start_idx, end_idx)
+        #     ray_bundle.metadata["override_scales"] = best_scales
+        #     outputs = self.forward(ray_bundle=ray_bundle)
+        #     # standard nerfstudio concatting
+        #     for output_name, output in outputs.items():  # type: ignore
+        #         if output_name == "best_scales":
+        #             continue
+        #         if output_name == "raw_relevancy":
+        #             for r_id in range(output.shape[0]):
+        #                 outputs_lists[f"relevancy_{r_id}"].append(output[r_id, ...])
+        #         else:
+        #             outputs_lists[output_name].append(output)
         outputs = {}
         for output_name, outputs_list in outputs_lists.items():
             if not torch.is_tensor(outputs_list[0]):
@@ -193,13 +207,14 @@ class LERFModel(NerfactoModel):
                 continue
             outputs[output_name] = torch.cat(outputs_list).view(image_height, image_width, -1)  # type: ignore
         for i in range(len(self.image_encoder.positives)):
+            relevancy = self.image_encoder.get_relevancy(outputs[f"clip"], i)[..., 0].reshape(image_height, image_width, 1)
+            outputs[f"relevancy_{i}"] = relevancy
             p_i = torch.clip(outputs[f"relevancy_{i}"] - 0.5, 0, 1)
             outputs[f"composited_{i}"] = apply_colormap(p_i / (p_i.max() + 1e-6), ColormapOptions("turbo"))
-            mask = (outputs["relevancy_0"] < 0.5).squeeze()
+            mask = (outputs["relevancy_{i}"] < 0.5).squeeze()
             outputs[f"composited_{i}"][mask, :] = outputs["rgb"][mask, :]
             outputs[f"mask_map_{i}"] = outputs["rgb"].clone()
             outputs[f"mask_map_{i}"][~mask, :] = outputs[f"mask_map_{i}"][~mask, :] * 0.5 + torch.tensor([1, 0, 0], device='cuda').reshape(1, 3) * 0.5
-            outputs[f"mask_map_{i}"][mask, :] /= 2                                            
         return outputs
 
     def _get_outputs_nerfacto(self, ray_samples: RaySamples):
@@ -225,8 +240,8 @@ class LERFModel(NerfactoModel):
                 outputs["clip"], batch["clip"], delta=1.25, reduction="none"
             )
             loss_dict["clip_loss"] = unreduced_clip.sum(dim=-1).nanmean()
-            unreduced_dino = torch.nn.functional.mse_loss(outputs["dino"], batch["dino"], reduction="none")
-            loss_dict["dino_loss"] = unreduced_dino.sum(dim=-1).nanmean()
+            # unreduced_dino = torch.nn.functional.mse_loss(outputs["dino"], batch["dino"], reduction="none")
+            # loss_dict["dino_loss"] = unreduced_dino.sum(dim=-1).nanmean()
         return loss_dict
 
     def get_param_groups(self) -> Dict[str, List[Parameter]]:
