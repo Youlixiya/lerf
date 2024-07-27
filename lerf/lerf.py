@@ -207,11 +207,12 @@ class LERFModel(NerfactoModel):
                 continue
             outputs[output_name] = torch.cat(outputs_list).view(image_height, image_width, -1)  # type: ignore
         for i in range(len(self.image_encoder.positives)):
-            relevancy = self.image_encoder.get_relevancy(outputs[f"clip"], i)[..., 0].reshape(image_height, image_width, 1)
+            # print(outputs[f"clip"].shape)
+            relevancy = self.image_encoder.get_relevancy(outputs[f"clip"].reshape(image_height * image_width, -1), i)[..., 0].reshape(image_height, image_width, 1)
             outputs[f"relevancy_{i}"] = relevancy
             p_i = torch.clip(outputs[f"relevancy_{i}"] - 0.5, 0, 1)
             outputs[f"composited_{i}"] = apply_colormap(p_i / (p_i.max() + 1e-6), ColormapOptions("turbo"))
-            mask = (outputs["relevancy_{i}"] < 0.5).squeeze()
+            mask = (outputs[f"relevancy_{i}"] < 0.5).squeeze()
             outputs[f"composited_{i}"][mask, :] = outputs["rgb"][mask, :]
             outputs[f"mask_map_{i}"] = outputs["rgb"].clone()
             outputs[f"mask_map_{i}"][~mask, :] = outputs[f"mask_map_{i}"][~mask, :] * 0.5 + torch.tensor([1, 0, 0], device='cuda').reshape(1, 3) * 0.5

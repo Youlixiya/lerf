@@ -17,7 +17,7 @@ Datamanager.
 """
 
 from __future__ import annotations
-
+import numpy as np
 import os.path as osp
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -25,6 +25,7 @@ from typing import Any, Dict, List, Literal, Optional, Tuple, Type, Union
 
 import torch
 import yaml
+from PIL import Image
 from nerfstudio.cameras.rays import RayBundle
 from nerfstudio.data.utils.nerfstudio_collate import nerfstudio_collate
 from nerfstudio.engine.callbacks import TrainingCallback, TrainingCallbackAttributes
@@ -34,8 +35,9 @@ from rich.progress import Console
 
 CONSOLE = Console(width=120)
 
-from lerf.data.utils.dino_dataloader import DinoDataloader
-from lerf.data.utils.pyramid_embedding_dataloader import PyramidEmbeddingDataloader
+# from lerf.data.utils.dino_dataloader import DinoDataloader
+from lerf.data.utils.clip_dataloader import CLIPDataloader
+# from lerf.data.utils.pyramid_embedding_dataloader import PyramidEmbeddingDataloader
 from lerf.encoders.image_encoder import BaseImageEncoder
 from nerfstudio.data.datamanagers.base_datamanager import VanillaDataManager, VanillaDataManagerConfig
 
@@ -76,33 +78,33 @@ class LERFDataManager(VanillaDataManager):  # pylint: disable=abstract-method
             config=config, device=device, test_mode=test_mode, world_size=world_size, local_rank=local_rank, **kwargs
         )
         self.image_encoder: BaseImageEncoder = kwargs["image_encoder"]
-        images = [self.train_dataset[i]["image"].permute(2, 0, 1)[None, ...] for i in range(len(self.train_dataset))]
-        images = torch.cat(images)
+        images = [Image.fromarray((self.train_dataset[i]["image"].numpy() * 255).astype(np.uint8)) for i in range(len(self.train_dataset))]
+        # images = torch.cat(images)
 
         cache_dir = f"outputs/{self.config.dataparser.data.name}"
-        clip_cache_path = Path(osp.join(cache_dir, f"clip_{self.image_encoder.name}"))
-        dino_cache_path = Path(osp.join(cache_dir, "dino.npy"))
+        clip_cache_path = Path(osp.join(cache_dir, f"clip_{self.image_encoder.name}.npy"))
+        # dino_cache_path = Path(osp.join(cache_dir, "dino.npy"))
         # NOTE: cache config is sensitive to list vs. tuple, because it checks for dict equality
-        self.dino_dataloader = DinoDataloader(
+        self.clip_dataloader = CLIPDataloader(
             image_list=images,
             device=self.device,
-            cfg={"image_shape": list(images.shape[2:4])},
-            cache_path=dino_cache_path,
+            cfg={"image_shape": [images[0].height, images[0].width]},
+            cache_path=clip_cache_path,
         )
         torch.cuda.empty_cache()
-        self.clip_interpolator = PyramidEmbeddingDataloader(
-            image_list=images,
-            device=self.device,
-            cfg={
-                "tile_size_range": [0.05, 0.5],
-                "tile_size_res": 7,
-                "stride_scaler": 0.5,
-                "image_shape": list(images.shape[2:4]),
-                "model_name": self.image_encoder.name,
-            },
-            cache_path=clip_cache_path,
-            model=self.image_encoder,
-        )
+        # self.clip_interpolator = PyramidEmbeddingDataloader(
+        #     image_list=images,
+        #     device=self.device,
+        #     cfg={
+        #         "tile_size_range": [0.05, 0.5],
+        #         "tile_size_res": 7,
+        #         "stride_scaler": 0.5,
+        #         "image_shape": list(images.shape[2:4]),
+        #         "model_name": self.image_encoder.name,
+        #     },
+        #     cache_path=clip_cache_path,
+        #     model=self.image_encoder,
+        # )
 
     def next_train(self, step: int) -> Tuple[RayBundle, Dict]:
         """Returns the next batch of data from the train dataloader."""
@@ -112,9 +114,9 @@ class LERFDataManager(VanillaDataManager):  # pylint: disable=abstract-method
         batch = self.train_pixel_sampler.sample(image_batch)
         ray_indices = batch["indices"]
         ray_bundle = self.train_ray_generator(ray_indices)
-        batch["clip"], clip_scale = self.clip_interpolator(ray_indices)
-        batch["dino"] = self.dino_dataloader(ray_indices)
-        ray_bundle.metadata["clip_scales"] = clip_scale
+        # batch["clip"], clip_scale = self.clip_interpolator(ray_indices)
+        batch["clip"] = self.clip_dataloader(ray_indices)
+        # ray_bundle.metadata["clip_scales"] = clip_scale
         # assume all cameras have the same focal length and image width
         ray_bundle.metadata["fx"] = self.train_dataset.cameras[0].fx.item()
         ray_bundle.metadata["width"] = self.train_dataset.cameras[0].width.item()
