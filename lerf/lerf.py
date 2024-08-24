@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Type
-
+import cv2
 import numpy as np
 import open_clip
 import torch
@@ -193,10 +193,19 @@ class LERFModel(NerfactoModel):
                 continue
             outputs[output_name] = torch.cat(outputs_list).view(image_height, image_width, -1)  # type: ignore
         for i in range(len(self.image_encoder.positives)):
+            relevancy = outputs[f"relevancy_{i}"].squeeze()
+            relevancy_np = relevancy.cpu().numpy()
+            scale = 30
+            kernel = np.ones((scale,scale)) / (scale**2)
+            avg_filtered = cv2.filter2D(relevancy_np, -1, kernel)
+            avg_filtered = torch.from_numpy(avg_filtered).to('cuda')
+            relevancy = 0.5 * (avg_filtered + relevancy)
+            outputs[f"relevancy_{i}"] = relevancy.unsqueeze(2)
             p_i = torch.clip(outputs[f"relevancy_{i}"] - 0.5, 0, 1)
             outputs[f"composited_{i}"] = apply_colormap(p_i / (p_i.max() + 1e-6), ColormapOptions("turbo"))
             mask = (outputs["relevancy_0"] < 0.5).squeeze()
             outputs[f"composited_{i}"][mask, :] = outputs["rgb"][mask, :]
+            outputs[f'mask_{i}'] = torch.stack([(~mask).float()]*3, dim=-1)
             outputs[f"mask_map_{i}"] = outputs["rgb"].clone()
             outputs[f"mask_map_{i}"][~mask, :] = outputs[f"mask_map_{i}"][~mask, :] * 0.5 + torch.tensor([1, 0, 0], device='cuda').reshape(1, 3) * 0.5
             outputs[f"mask_map_{i}"][mask, :] /= 2                                            
