@@ -1,0 +1,42 @@
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is the red fruit" --output-path "ovs3d_masks/lawn_reasoning/red apple"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is worn on the head and is white" --output-path "ovs3d_masks/lawn_reasoning/New York Yankees cap"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is small device used for stapling paper" --output-path "ovs3d_masks/lawn_reasoning/stapler"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which can convert electric signals into sounds" --output-path "ovs3d_masks/lawn_reasoning/black headphone"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is bottled" --output-path "ovs3d_masks/lawn_reasoning/hand soap"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is made of a lot of grass" --output-path "ovs3d_masks/lawn_reasoning/green lawn"
+
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "red apple" --output-path "ovs3d_masks/lawn/red apple"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "New York Yankees cap" --output-path "ovs3d_masks/lawn/New York Yankees cap"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "stapler" --output-path "ovs3d_masks/lawn/stapler"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "black headphone" --output-path "ovs3d_masks/lawn/black headphone"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "hand soap" --output-path "ovs3d_masks/lawn/hand soap"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "green lawn" --output-path "ovs3d_masks/lawn/green lawn"
+
+# CUDA_VISIBLE_DEVICES=4 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is the red fruit" --output-path "ovs3d_masks/lawn_reasoning/red apple"
+# CUDA_VISIBLE_DEVICES=4 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is worn on the head and is white" --output-path "ovs3d_masks/lawn_reasoning/New York Yankees cap"
+# CUDA_VISIBLE_DEVICES=4 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is small device used for stapling paper" --output-path "ovs3d_masks/lawn_reasoning/stapler"
+# CUDA_VISIBLE_DEVICES=4 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which can convert electric signals into sounds" --output-path "ovs3d_masks/lawn_reasoning/black headphone"
+# CUDA_VISIBLE_DEVICES=4 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is bottled" --output-path "ovs3d_masks/lawn_reasoning/hand soap"
+# CUDA_VISIBLE_DEVICES=4 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "which is made of a lot of grass" --output-path "ovs3d_masks/lawn_reasoning/green lawn"
+
+
+CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_map_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "wood" --output-path "ovs3d_masks/room/wood"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "shrilling chicken" --output-path "ovs3d_masks/room/shrilling chicken"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "weaving basket" --output-path "ovs3d_masks/room/weaving basket"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "rabbit" --output-path "ovs3d_masks/room/rabbit"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "dinosaur" --output-path "ovs3d_masks/room/dinosaur"
+# CUDA_VISIBLE_DEVICES=3 ns-render dataset --load-config outputs/room/lerf/2024-09-04_203737/config.yml --rendered-output-names mask_0 --colormap-options.colormap turbo --colormap-options.colormap-min -1 --colormap-options.normalize True --text_prompt "baseball" --output-path "ovs3d_masks/room/baseball"
+
+
+# "wood",
+#                              "shrilling chicken",
+#                              "weaving basket",
+#                              "rabbit", 
+#                              "dinosaur", 
+#                              "baseball"],
+#         "reasoning_prompts": ["which is red table", 
+#                              "which is a yellow animal doll", 
+#                              "which can be uesd to hold a water bottle",
+#                              "which has long grey ears",
+#                              "which has a long tail", 
+#                              "which is spherical and white"]

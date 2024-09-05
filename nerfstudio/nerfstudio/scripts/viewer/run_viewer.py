@@ -61,6 +61,7 @@ class RunViewer:
     def main(self) -> None:
         """Main function."""
         config, pipeline, _, step = eval_setup(
+            '',
             self.load_config,
             eval_num_rays_per_chunk=None,
             test_mode="test",

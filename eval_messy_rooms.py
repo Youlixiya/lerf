@@ -6,13 +6,14 @@ import sys
 
 dataset_name = sys.argv[1]
 
-# lerf_masks/figurines/green apple/test/mask_0/test_0.jpg
+#  gt     data/messy_rooms/large_corridor_25/segmentations/  00168/what is a white animal doll.png
+#  pred   messy_rooms_masks/large_corridor_25/  what is a white animal doll/test/mask_0/00168.jpg
 
-gt_folder_path = os.path.join('data','gsgrouping', dataset_name,'test_mask')
+
+gt_folder_path = os.path.join('data','messy_rooms', dataset_name,'segmentations')
 # You can change pred_folder_path to your output
-pred_folder_path = os.path.join('lerf_masks', dataset_name)
+pred_folder_path = os.path.join('messy_rooms_masks', f'{dataset_name}')
 
-# f'{dataset_name}_reasoning'
 
 # General util function to get the boundary of a binary mask.
 # https://gist.github.com/bowenc0221/71f7a02afee92646ca05efeeb14d687d
@@ -88,6 +89,8 @@ class_counts = {}  # Count the number of times each class appears
 # prompt_dict_ramen:"chopsticks":"which one is the chopstic on the side of yellow bowl","egg":"what is the round, golden, protein-rich object in the bowl","glass of water":"which one is a transparent cup with water in it", "pork belly":"which is the big piece of meat in the bowl", "wavy noodles in bowl":"which are long and thin noodles","yellow bowl":"which is the yellow bowl used to hold noodles"
 
 
+#  gt     data/messy_rooms/large_corridor_25/segmentations/  00168/what is a white animal doll.png
+#  pred   messy_rooms_masks/large_corridor_25/  what is a white animal doll/test/mask_0/00168.jpg
 
 # Iterate over each image and category in the GT dataset
 for image_name in os.listdir(gt_folder_path):
@@ -98,7 +101,7 @@ for image_name in os.listdir(gt_folder_path):
         for cat_file in os.listdir(gt_image_path):
             cat_id = cat_file.split('.')[0]  # Assuming cat_file format is "cat_id.png"
             gt_mask_path = os.path.join(gt_image_path, cat_file)
-            pred_mask_path = os.path.join(pred_folder_path, cat_id,'test/mask_0',f'test_{image_name}.jpg')
+            pred_mask_path = os.path.join(pred_folder_path, cat_id,'test/mask_0',f'{image_name}.jpg')
             
 
             gt_mask = load_mask(gt_mask_path)

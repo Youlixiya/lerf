@@ -6,13 +6,11 @@ import sys
 
 dataset_name = sys.argv[1]
 
-# lerf_masks/figurines/green apple/test/mask_0/test_0.jpg
-
 gt_folder_path = os.path.join('data','gsgrouping', dataset_name,'test_mask')
 # You can change pred_folder_path to your output
-pred_folder_path = os.path.join('lerf_masks', dataset_name)
+pred_folder_path = os.path.join('lerf_masks', f'{dataset_name}_reasoning')
 
-# f'{dataset_name}_reasoning'
+# f'{dataset_name}_reasoning
 
 # General util function to get the boundary of a binary mask.
 # https://gist.github.com/bowenc0221/71f7a02afee92646ca05efeeb14d687d
@@ -86,7 +84,6 @@ class_counts = {}  # Count the number of times each class appears
 # prompt_dict_teatime:"apple":"which is red fruit","bag of cookies":"which is the brown bag on the side of the plate","coffee mug":"which cup is used for coffee","cookies on a plate":"which are the cookies","paper napkin":"what can be used to wipe hands","plate":"what can be used to hold cookies","sheep":"which is a cute white doll","spoon handle":"which is spoon handle","stuffed bear":"which is the brown bear doll","tea in a glass":"which is the drink in the transparent glass"                             
 # prompt_dict_figurines:"green apple":"what is green fruit","green toy chair":"what is suitable for people to sit down and is green","old camera":"what can be used to take pictures and is black","porcelain hand":"what is like a part of a person","red apple":"what is red fruit","red toy chair":"what is suitable for people to sit down and is red","rubber duck with red hat":"which is the small yellow rubber duck"
 # prompt_dict_ramen:"chopsticks":"which one is the chopstic on the side of yellow bowl","egg":"what is the round, golden, protein-rich object in the bowl","glass of water":"which one is a transparent cup with water in it", "pork belly":"which is the big piece of meat in the bowl", "wavy noodles in bowl":"which are long and thin noodles","yellow bowl":"which is the yellow bowl used to hold noodles"
-
 
 
 # Iterate over each image and category in the GT dataset

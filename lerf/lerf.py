@@ -200,15 +200,22 @@ class LERFModel(NerfactoModel):
             avg_filtered = cv2.filter2D(relevancy_np, -1, kernel)
             avg_filtered = torch.from_numpy(avg_filtered).to('cuda')
             relevancy = 0.5 * (avg_filtered + relevancy)
+            norma_relevancy = relevancy
+            norma_relevancy = norma_relevancy - torch.min(relevancy)
+            norma_relevancy = norma_relevancy / (torch.max(norma_relevancy) + 1e-9)
+            norma_relevancy = norma_relevancy * (1.0 - (-1.0)) + (-1.0)
+            norma_relevancy = torch.clip(norma_relevancy, 0, 1)
+            binary_mask = norma_relevancy > 0.4
             outputs[f"relevancy_{i}"] = relevancy.unsqueeze(2)
             p_i = torch.clip(outputs[f"relevancy_{i}"] - 0.5, 0, 1)
             outputs[f"composited_{i}"] = apply_colormap(p_i / (p_i.max() + 1e-6), ColormapOptions("turbo"))
             mask = (outputs["relevancy_0"] < 0.5).squeeze()
+
             outputs[f"composited_{i}"][mask, :] = outputs["rgb"][mask, :]
-            outputs[f'mask_{i}'] = torch.stack([(~mask).float()]*3, dim=-1)
+            outputs[f'mask_{i}'] = torch.stack([(binary_mask).float()]*3, dim=-1)
             outputs[f"mask_map_{i}"] = outputs["rgb"].clone()
-            outputs[f"mask_map_{i}"][~mask, :] = outputs[f"mask_map_{i}"][~mask, :] * 0.5 + torch.tensor([1, 0, 0], device='cuda').reshape(1, 3) * 0.5
-            outputs[f"mask_map_{i}"][mask, :] /= 2                                            
+            outputs[f"mask_map_{i}"][binary_mask, :] = outputs[f"mask_map_{i}"][binary_mask, :] * 0.5 + torch.tensor([1, 0, 0], device='cuda').reshape(1, 3) * 0.5
+            outputs[f"mask_map_{i}"][~binary_mask, :] /= 2                                            
         return outputs
 
     def _get_outputs_nerfacto(self, ray_samples: RaySamples):

@@ -190,3 +190,6 @@ camera_paths/
 */**/._.DS_Store
 lerf_masks
 outputs_bak
+messy_rooms_masks
+ovs3d_masks
+ovs3d_masks_bak

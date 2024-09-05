@@ -16,5 +16,6 @@ include = ["lerf*"]
 
 [project.entry-points.'nerfstudio.method_configs']
 lerf = 'lerf.lerf_config:lerf_method'
+lerf_ovs3d = 'lerf.lerf_config:lerf_ovs3d_method'
 lerf_big = 'lerf.lerf_config:lerf_method_big'
 lerf_lite = 'lerf.lerf_config:lerf_method_lite'

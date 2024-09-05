@@ -285,6 +285,7 @@ class Cameras(TensorDataclass):
         Returns whether or not the cameras are "jagged" (i.e. the height and widths are different, meaning that
         you cannot concatenate the image coordinate maps together)
         """
+        # print(self.height)
         h_jagged = not torch.all(self.height == self.height.view(-1)[0])
         w_jagged = not torch.all(self.width == self.width.view(-1)[0])
         return h_jagged or w_jagged
