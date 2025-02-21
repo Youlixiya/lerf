@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Type
@@ -155,6 +156,7 @@ class LERFModel(NerfactoModel):
         image_height, image_width = camera_ray_bundle.origins.shape[:2]
         num_rays = len(camera_ray_bundle)
         outputs_lists = defaultdict(list)  # dict from name:list of outputs (1 per bundle)
+        t1 =time.time()
         for i in range(0, num_rays, num_rays_per_chunk):
             start_idx = i
             end_idx = i + num_rays_per_chunk
@@ -186,12 +188,18 @@ class LERFModel(NerfactoModel):
                         outputs_lists[f"relevancy_{r_id}"].append(output[r_id, ...])
                 else:
                     outputs_lists[output_name].append(output)
+        t2 = time.time() - t1
+        fps_average = 1 / t2
+        print(f't_average = {t2},fps_average = {fps_average}')
+
         outputs = {}
         for output_name, outputs_list in outputs_lists.items():
             if not torch.is_tensor(outputs_list[0]):
                 # TODO: handle lists of tensors as well
                 continue
             outputs[output_name] = torch.cat(outputs_list).view(image_height, image_width, -1)  # type: ignore
+        
+
         for i in range(len(self.image_encoder.positives)):
             relevancy = outputs[f"relevancy_{i}"].squeeze()
             relevancy_np = relevancy.cpu().numpy()

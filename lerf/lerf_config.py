@@ -30,7 +30,7 @@ lerf_method = MethodSpecification(
         mixed_precision=True,
         pipeline=LERFPipelineConfig(
             datamanager=LERFDataManagerConfig(
-                dataparser=ColmapDataParserConfig(),
+                dataparser=ColmapDataParserConfig(train_split_fraction=1),
                 train_num_rays_per_batch=4096,
                 eval_num_rays_per_batch=4096,
             ),
@@ -86,7 +86,7 @@ lerf_ovs3d_method = MethodSpecification(
         mixed_precision=True,
         pipeline=LERFPipelineConfig(
             datamanager=LERFDataManagerConfig(
-                dataparser=NerfstudioDataParserConfig(train_split_fraction=0.8),
+                dataparser=NerfstudioDataParserConfig(train_split_fraction=1),
                 train_num_rays_per_batch=4096,
                 eval_num_rays_per_batch=4096,
             ),

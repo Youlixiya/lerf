@@ -170,7 +170,7 @@ events.out.*
 
 # Data
 data
-!*/data
+
 
 # Misc
 old/
@@ -192,4 +192,6 @@ lerf_masks
 outputs_bak
 messy_rooms_masks
 ovs3d_masks
+ovs3d_masks_model
+ovs3d_masks_manual_annovation
 ovs3d_masks_bak
